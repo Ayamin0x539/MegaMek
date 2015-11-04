@@ -727,7 +727,24 @@ public class Client implements IClientCommandHandler {
      * Send the new map selection to the server
      */
     public void sendMapSettings(MapSettings settings) {
+    	System.out.println("We're changing maps");
         send(new Packet(Packet.COMMAND_SENDING_MAP_SETTINGS, settings));
+    }
+    
+    /**
+     * Send invisibility request to the server
+     */
+    public void sendInvisibleRequest(String identifier){
+    	send(new Packet(Packet.COMMAND_INVISIBLE_REQUEST, identifier));
+    }
+    //TODO CSE 2102 figure out how to identify the sender
+    
+    
+    /**
+     * Send invisibility status to the server (server will decide who to give it to based on identifier)
+     */
+    public void sendInvisibleStatus(String identifier){
+    	send(new Packet(Packet.COMMAND_INVISIBLE_GRANT, identifier));
     }
 
     /**
@@ -1059,6 +1076,9 @@ public class Client implements IClientCommandHandler {
         game.getBoard().collapseBuilding((Vector<Coords>) packet.getObject(0));
     }
 
+    //TODO CSE 2102 add 2 methods: receiveInvisibleRequestFromNonHost, receiveInvisibleRequestAcceptedByHost
+    // add to switch case above
+    
     /**
      * Loads entity firing data from the data in the net command
      */
@@ -1212,6 +1232,7 @@ public class Client implements IClientCommandHandler {
             case Packet.COMMAND_PLAYER_UPDATE:
                 receivePlayerInfo(c);
                 break;
+            //TODO CSE 2102 investigate player info to uniquely id a player
             case Packet.COMMAND_PLAYER_READY:
                 getPlayer(c.getIntValue(0)).setDone(c.getBooleanValue(1));
                 break;

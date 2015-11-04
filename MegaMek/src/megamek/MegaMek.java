@@ -95,9 +95,9 @@ public class MegaMek {
             }
 
             // Redirect output to logfiles, unless turned off.
-            if (logFileName != null) {
-                MegaMek.redirectOutput(logFileName);
-            }
+//            if (logFileName != null) {
+//                MegaMek.redirectOutput(logFileName);
+//            }
 
             MegaMek.showInfo();
 

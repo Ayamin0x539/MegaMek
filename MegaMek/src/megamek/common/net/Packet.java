@@ -124,6 +124,9 @@ public class Packet {
     public static final int COMMAND_CFR_AMS_ASSIGN = 715;
     
     public static final int COMMAND_GAME_VICTORY_EVENT = 800;
+    
+	public static final int COMMAND_INVISIBLE_REQUEST = 900;
+	public static final int COMMAND_INVISIBLE_GRANT = 905;
 
     private int command;
 

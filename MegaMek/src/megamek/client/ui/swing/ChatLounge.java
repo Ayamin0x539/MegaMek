@@ -2540,6 +2540,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
                 resetSelectedBoards = true;
                 clientgui.getClient().sendMapSettings(mapSettings);
             }
+          //TODO CSE 2102 - add another else if for ev.getSource().equals(requestInvisible)/.equals(grantInvisible)  
         } else if (ev.getSource().equals(chkRotateBoard)
                 && (lisBoardsAvailable.getSelectedIndex() != -1)) {
             previewMapsheet();

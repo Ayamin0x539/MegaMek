@@ -166,6 +166,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
     private JButton butCamo;
     private JButton butAddBot;
     private JButton butRemoveBot;
+    private JButton butRequestInvisible; // request invisibility status (greyed out for host)
     private JButton butChangeStart;
     private JTable tablePlayers;
     private JScrollPane scrPlayers;
@@ -502,6 +503,14 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
         butRemoveBot.setEnabled(false);
         butRemoveBot.setActionCommand("remove_bot"); //$NON-NLS-1$
         butRemoveBot.addActionListener(this);
+        
+        butRequestInvisible = new JButton(
+        		Messages.getString("ChatLounge.butRequestInvisible")); // messages.properties for English version
+        // butRequestInvisible.setEnabled(true); // in the end, this needs to be set enabled only for non-host players
+        // butRequestInvisible.setEnabled(!clientgui.getClient().getLocalPlayer()).isHost()); // TODO CSE 2102 isHost needs to be implemented. assuming getLocalPlayer returns "us".
+        butRequestInvisible.setActionCommand("request_invisible");
+        butRequestInvisible.addActionListener(this);
+        
 
         choTeam = new JComboBox<String>();
         setupTeams();
@@ -568,6 +577,15 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
         c.weighty = 0.0;
         gridbag.setConstraints(butRemoveBot, c);
         panPlayerInfo.add(butRemoveBot);
+        
+        c.gridx = 0;
+        c.gridy = 4;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.weightx = 1.0;
+        c.weighty = 0.0;
+        gridbag.setConstraints(butRequestInvisible, c);
+        panPlayerInfo.add(butRequestInvisible);
 
         c.gridx = 1;
         c.gridy = 0;
@@ -2478,7 +2496,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
                             .getLocalPlayer().getName());
         } else if (ev.getSource().equals(butAddBot)) {
             BotConfigDialog bcd = new BotConfigDialog(clientgui.frame);
-            bcd.setVisible(true);
+            bcd.setVisible(true); // enables bot configuration window to show up
             if (bcd.dialogAborted) {
                 return; // user didn't click 'ok', add no bot
             }
@@ -2510,8 +2528,11 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
                 return;
             }
             c.die();
-            clientgui.getBots().remove(c.getName());
-        } else if (ev.getSource() == butConditions) {
+            clientgui.getBots().remove(c.getName());           //TODO CSE 2102 - add another else if for ev.getSource().equals(requestInvisible)/.equals(grantInvisible)  
+        } else if (ev.getSource() == butRequestInvisible) { // we can do grantInvisible on the host side via Player Settings option. (double click on player name in ChatLounge).
+        	
+        } 
+        else if (ev.getSource() == butConditions) {
             clientgui.getPlanetaryConditionsDialog().update(
                     clientgui.getClient().getGame().getPlanetaryConditions());
             clientgui.getPlanetaryConditionsDialog().setVisible(true);
@@ -2540,7 +2561,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
                 resetSelectedBoards = true;
                 clientgui.getClient().sendMapSettings(mapSettings);
             }
-          //TODO CSE 2102 - add another else if for ev.getSource().equals(requestInvisible)/.equals(grantInvisible)  
         } else if (ev.getSource().equals(chkRotateBoard)
                 && (lisBoardsAvailable.getSelectedIndex() != -1)) {
             previewMapsheet();

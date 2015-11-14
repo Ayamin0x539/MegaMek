@@ -2744,6 +2744,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
     }
 
     Client getPlayerSelected() {
+    	//TODO CSE 2102 we need to check if the person trying to select a player is an Admin, if they are it should return a player even if it's not that person or one of their bots
         if ((tablePlayers == null) || (tablePlayers.getSelectedRow() == -1)) {
             return clientgui.getClient();
         }

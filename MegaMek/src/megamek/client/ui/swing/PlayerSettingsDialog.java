@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -67,12 +68,14 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
     private JLabel labVibrabomb = new JLabel(Messages.getString("PlayerSettingsDialog.labVibrabomb"), SwingConstants.RIGHT); //$NON-NLS-1$
     private JLabel labActive = new JLabel(Messages.getString("PlayerSettingsDialog.labActive"), SwingConstants.RIGHT); //$NON-NLS-1$
     private JLabel labInferno = new JLabel(Messages.getString("PlayerSettingsDialog.labInferno"), SwingConstants.RIGHT); //$NON-NLS-1$
-
+    private JLabel labInvisible = new JLabel(Messages.getString("PlayerSettingsDialog.labInvisible"), SwingConstants.RIGHT);
+    
     private JTextField fldConventional = new JTextField(3);
     // private JTextField fldCommandDetonated = new JTextField(1);
     private JTextField fldVibrabomb = new JTextField(3);
     private JTextField fldActive = new JTextField(3);
     private JTextField fldInferno = new JTextField(3);
+    private JCheckBox chkPlayerInvisible = new JCheckBox();
 
     private JButton butOkay = new JButton(Messages.getString("Okay")); //$NON-NLS-1$
     private JButton butCancel = new JButton(Messages.getString("Cancel")); //$NON-NLS-1$
@@ -274,12 +277,37 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
         gridbag.setConstraints(fldInferno, c);
         panMain.add(fldInferno);
         
+        c.fill = GridBagConstraints.NONE;
+        c.insets = new Insets(1, 1, 1, 1);
+        c.gridx = 0;
+        c.gridy++;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.weightx = 0.0;
+        c.weighty = 0.0;
+        c.anchor = GridBagConstraints.EAST;
+        gridbag.setConstraints(labInvisible, c);
+        panMain.add(labInvisible);
+        
+        c.fill = GridBagConstraints.NONE;
+        c.insets = new Insets(1, 1, 1, 1);
+        c.gridx = 1;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.weightx = 0.0;
+        c.weighty = 0.0;
+        c.anchor = GridBagConstraints.NORTHWEST;
+        gridbag.setConstraints(chkPlayerInvisible, c);
+        panMain.add(chkPlayerInvisible);
+        //TODO CSE 2102 this check box should be disabled if the person usings the Player Settings Dialog is not an admin
+        
         // Disable changing minefields mid-game
         if (client.getGame().getPhase() != Phase.PHASE_LOUNGE) {
             fldConventional.setEnabled(false);
             fldVibrabomb.setEnabled(false);
             fldActive.setEnabled(false);
             fldInferno.setEnabled(false);
+            chkPlayerInvisible.setEnabled(false);
         }
 
     }
@@ -291,6 +319,8 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
         fldVibrabomb.setText(Integer.toString(player.getNbrMFVibra()));
         fldActive.setText(Integer.toString(player.getNbrMFActive()));
         fldInferno.setText(Integer.toString(player.getNbrMFInferno()));
+        //TODO CSE 2102 need to add boolean invisible property to player?
+        //chkPlayerInvisible.setSelected(player.getInvisible);
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -315,6 +345,7 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
             String vibra = fldVibrabomb.getText();
             String active = fldActive.getText();
             String inferno = fldInferno.getText();
+            Boolean invisible = chkPlayerInvisible.isSelected();
 
             int nbrConv = 0;
             int nbrVibra = 0;
@@ -353,6 +384,8 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
             client.getLocalPlayer().setNbrMFVibra(nbrVibra);
             client.getLocalPlayer().setNbrMFActive(nbrActive);
             client.getLocalPlayer().setNbrMFInferno(nbrInferno);
+            //TODO CSE 2102 add setter for player invisibility property
+            //client.getLocalPlayer().setInvisible(invisible);
 
             client.sendPlayerInfo();
             setVisible(false);

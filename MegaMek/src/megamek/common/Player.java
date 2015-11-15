@@ -36,8 +36,10 @@ public class Player extends TurnOrdered implements IPlayer {
 
     private int team = TEAM_NONE;
 
+    private boolean admin = false;
     private boolean done = false; // done with phase
     private boolean ghost = false; // disconnected player
+	private boolean invisible = false; // invisible player
     private boolean observer = false;
 
     private boolean see_entire_board = false; // Player can observe
@@ -248,6 +250,26 @@ public class Player extends TurnOrdered implements IPlayer {
     public void setGhost(boolean ghost) {
         this.ghost = ghost;
     }
+	
+    @Override
+    public boolean isAdmin() {
+    	return admin;
+    }
+    
+    @Override
+    public void setAdmin(boolean admin) {
+    	this.admin = admin;
+    }
+    
+    @Override
+	public boolean isInvisible() {
+		return invisible;
+	}
+	
+    @Override
+	public void setInvisible(boolean invisFlag) {
+		this.invisible = invisFlag;
+	}
 
     @Override
     public boolean isObserver() {

@@ -107,6 +107,14 @@ public interface IPlayer extends ITurnOrdered {
 
     void setGhost(boolean ghost);
 
+    boolean isAdmin();
+    
+	void setAdmin(boolean admin);  
+	
+    boolean isInvisible();
+    
+    void setInvisible(boolean invisFlag);
+
     boolean isObserver();
 
     void setSeeAll(boolean see_all);
@@ -192,4 +200,5 @@ public interface IPlayer extends ITurnOrdered {
      * @return a vector of relevant entity ids
      */
     Vector<Integer> getAirborneVTOL();
+
 }

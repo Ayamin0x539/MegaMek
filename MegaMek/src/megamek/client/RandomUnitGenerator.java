@@ -284,8 +284,8 @@ public class RandomUnitGenerator implements Serializable {
                             unit = MechSummaryCache.getInstance().getMech(name);
                         }
                         if ((null == unit) && !name.startsWith("@")) {
-                            System.err.println("The unit " + name + " could not be found in the " + key + " RAT (" +
-                                               ratFile.getPath() + ")");
+                            /*System.err.println("The unit " + name + " could not be found in the " + key + " RAT (" +
+                                               ratFile.getPath() + ")");*/ // TODO CSE 2102 re-enable this at the very end (annoying red eror messages)
                         } else {
                             re.getUnits().add(name);
                             re.getWeights().add(weight);

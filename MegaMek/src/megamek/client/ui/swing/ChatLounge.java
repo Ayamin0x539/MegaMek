@@ -84,6 +84,7 @@ import megamek.client.bot.BotClient;
 import megamek.client.bot.ui.swing.BotGUI;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.util.ImageFileFactory;
+import megamek.common.Administrator;
 import megamek.common.Aero;
 import megamek.common.BattleArmor;
 import megamek.common.BattleArmorHandlesTank;
@@ -2953,7 +2954,9 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
                     boolean isOwner = player.equals(clientgui.getClient()
                             .getLocalPlayer());
                     boolean isBot = clientgui.getBots().get(player.getName()) != null;
-                    if ((isOwner || isBot)) {
+                    //boolean clickerIsAdmin = clientgui.getClient().getLocalPlayer() instanceof Administrator; // TODO CSE 2102: test that this actually works... admins can modify other people.
+                    boolean clickerIsAdmin = clientgui.getClient().getLocalPlayer().isAdmin();
+                    if ((isOwner || isBot || clickerIsAdmin)) {
                         customizePlayer();
                     }
                 }
@@ -2977,13 +2980,14 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
             boolean isOwner = player.equals(clientgui.getClient()
                     .getLocalPlayer());
             boolean isBot = clientgui.getBots().get(player.getName()) != null;
+            boolean clickerIsAdmin = clientgui.getClient().getLocalPlayer().isAdmin();
             if (e.isPopupTrigger()) {
                 JMenuItem menuItem = null;
                 // JMenu menu = null;
                 menuItem = new JMenuItem("Configure ...");
                 menuItem.setActionCommand("CONFIGURE|" + row);
                 menuItem.addActionListener(this);
-                menuItem.setEnabled(isOwner || isBot);
+                menuItem.setEnabled(isOwner || isBot || clickerIsAdmin);
                 popup.add(menuItem);
                 popup.show(e.getComponent(), e.getX(), e.getY());
             }

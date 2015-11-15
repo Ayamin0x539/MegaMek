@@ -23,7 +23,7 @@ import megamek.common.event.GamePlayerChangeEvent;
 /**
  * Represents a player in the game.
  */
-public final class Player extends TurnOrdered implements IPlayer {
+public class Player extends TurnOrdered implements IPlayer {
     /**
      *
      */

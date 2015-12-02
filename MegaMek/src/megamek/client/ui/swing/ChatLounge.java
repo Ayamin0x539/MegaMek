@@ -84,7 +84,6 @@ import megamek.client.bot.BotClient;
 import megamek.client.bot.ui.swing.BotGUI;
 import megamek.client.ui.Messages;
 import megamek.client.ui.swing.util.ImageFileFactory;
-import megamek.common.Administrator;
 import megamek.common.Aero;
 import megamek.common.BattleArmor;
 import megamek.common.BattleArmorHandlesTank;
@@ -136,6 +135,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
      */
     private static final long serialVersionUID = 1454736776730903786L;
 
+    private String clickedName;
     private JButton butOptions;
     private JLabel lblMapSummary;
     private JLabel lblGameYear;
@@ -2193,11 +2193,23 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
     }
 
     public void customizePlayer() {
-        Client c = getPlayerSelected();
-        if (null != c) {
-            PlayerSettingsDialog psd = new PlayerSettingsDialog(clientgui, c);
-            psd.setVisible(true);
-        }
+    	Client c = getPlayerSelected();
+    	String name;
+    	if(clickedName != null) {
+    		name = clickedName;
+    	}
+    	else {
+    		name = "ERROR GETTING NAME FOR PSD";
+    	}
+    	Client myClient = clientgui.getClient();
+    	System.out.println(myClient == c ? "myClient == c" : "myClient != c");
+    	if(myClient.getLocalPlayer().isAdmin() || myClient == c) {
+	        if (null != c) {
+	        	System.out.println("<ChatLounge.customizePlayer()> Opening PSD for " + name);
+	            PlayerSettingsDialog psd = new PlayerSettingsDialog(clientgui, c, name);
+	            psd.setVisible(true);
+	        }
+    	}
     }
 
     /**
@@ -2531,7 +2543,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
             c.die();
             clientgui.getBots().remove(c.getName());           //TODO CSE 2102 - add another else if for ev.getSource().equals(requestInvisible)/.equals(grantInvisible)  
         } else if (ev.getSource() == butRequestInvisible) { // we can do grantInvisible on the host side via Player Settings option. (double click on player name in ChatLounge).
-        	
+        	clientgui.getClient().sendInvisibleRequest(clientgui.getClient().getLocalPlayer().getId());
         } 
         else if (ev.getSource() == butConditions) {
             clientgui.getPlanetaryConditionsDialog().update(
@@ -2746,15 +2758,27 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
 
     Client getPlayerSelected() {
     	//TODO CSE 2102 we need to check if the person trying to select a player is an Admin, if they are it should return a player even if it's not that person or one of their bots
-        if ((tablePlayers == null) || (tablePlayers.getSelectedRow() == -1)) {
+    	if(tablePlayers == null) {
+    		return clientgui.getClient();
+    	}
+        if (tablePlayers.getSelectedRow() == -1) {
+        	System.out.println("You double clicked?");
+        	System.out.println(tablePlayers == null ? "Tableplayers is null" : "Tableplayers isn't null");
+            //String name = (String) tablePlayers.getValueAt(
+                    //tablePlayers.getSelectedRow(), 0);
             return clientgui.getClient();
         }
         String name = (String) tablePlayers.getValueAt(
                 tablePlayers.getSelectedRow(), 0);
+        clickedName = name;
+        System.out.println("<ChatLounge 1> The name of the player is " +  name); // cse 2102
         BotClient c = (BotClient) clientgui.getBots().get(name);
         if ((c == null) && clientgui.getClient().getName().equals(name)) {
+        	 System.out.println("<ChatLounge 2> The name of the player is " +  name); // cse 2102
             return clientgui.getClient();
         }
+        System.out.println("<ChatLounge 3> The name of the player is " +  name); // cse 2102
+        
         return c;
     }
 
@@ -2954,7 +2978,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
                     boolean isOwner = player.equals(clientgui.getClient()
                             .getLocalPlayer());
                     boolean isBot = clientgui.getBots().get(player.getName()) != null;
-                    //boolean clickerIsAdmin = clientgui.getClient().getLocalPlayer() instanceof Administrator; // TODO CSE 2102: test that this actually works... admins can modify other people.
                     boolean clickerIsAdmin = clientgui.getClient().getLocalPlayer().isAdmin();
                     if ((isOwner || isBot || clickerIsAdmin)) {
                         customizePlayer();

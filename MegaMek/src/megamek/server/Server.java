@@ -28142,6 +28142,8 @@ public class Server implements Runnable {
         }
 
     }
+    
+
 
     /**
      * Sends out the game victory event to all connections
@@ -28172,7 +28174,29 @@ public class Server implements Runnable {
         data[1] = getPlayer(playerId);
         return new Packet(Packet.COMMAND_PLAYER_ADD, data);
     }
-
+    /**
+     * Creates a packet with invisibility request containing who sent the request.
+     * @param playerId the player that sent the request for invisibility
+     */
+    private Packet createInvisibilityRequestPacket(int playerId) {
+    	final Object[] data = new Object[2];
+    	data[0] = new Integer(playerId);
+    	data[1] = getPlayer(playerId);
+    	return new Packet(Packet.COMMAND_INVISIBLE_REQUEST);
+    }
+    
+    /**
+     * Creates a packet with invisibility grant containing who sent the request.
+     * @param playerId the player that sent the request for invisibility
+     */
+    private Packet createInvisibilityGrantPacket(int playerId) {
+    	final Object[] data = new Object[2];
+    	data[0] = new Integer(playerId);
+    	data[1] = getPlayer(playerId);
+    	return new Packet(Packet.COMMAND_INVISIBLE_GRANT, data);
+    }
+    
+    
     /**
      * Creates a packet containing the player info, for update
      */
@@ -28452,7 +28476,7 @@ public class Server implements Runnable {
     }
 
     /**
-     * Transmits a chat message to all players
+     * Transmits a chat message to all players - this isn't really to all players.
      */
     public void sendChat(int connId, String origin, String message) {
         send(connId,
@@ -28804,7 +28828,7 @@ public class Server implements Runnable {
                     if (connId == IPlayer.PLAYER_NONE) {
                         sendServerChat(chat);
                     } else {
-                        sendServerChat(connId, chat);
+                        sendServerChat(connId, chat); // TODO CSE 2102 model the invisible request to this COMMAND_CHAT packet; it's a server-wide broadcast (red flashing)
                     }
                 } else {
                     sendChat(player.getName(), chat);
@@ -29003,6 +29027,52 @@ public class Server implements Runnable {
                                                      (SpecialHexDisplay) packet.getObject(1));
                 sendSpecialHexDisplayPackets();
                 break;
+            case Packet.COMMAND_INVISIBLE_REQUEST:
+            	// data[0]: playerid
+            	int pid = (int)packet.getObject(0);
+            	IPlayer playerRequested = (IPlayer)packet.getObject(1);
+//            	for(IPlayer p : game.getPlayersVector()) { // this will go in the client somewhere CSE 2102
+//            		if (p.getId() == pid) {
+//            			invisibleRequester = p;
+//            			break;
+//            		}
+//            	}
+            	for(IConnection conn : connections) {
+            		IPlayer p = game.getPlayer(conn.getId());
+            		if(p.isAdmin()) {
+            			String chatToSend = "";
+            			chatToSend += playerRequested.getName();
+            			chatToSend += " has requested admin/invisibility status.";
+            			send(conn.getId(), createInvisibilityRequestPacket(pid));
+            			sendServerChat(conn.getId(), chatToSend);
+            			break;
+            		}
+            	}
+            	break;
+            case Packet.COMMAND_INVISIBLE_GRANT:
+            	// data[0]: playerId of person granted
+            	// data[1]: Player object of person granted
+            	int pid2 = (int)packet.getObject(0);
+            	IPlayer p = (IPlayer)packet.getObject(1);
+            	p.setInvisible(true);
+            	
+            	// Send chat to everyone saying player has left.
+            	sendServerChat(p.getName() + " disconnected.");
+            	// Send chat only to admin that the player has really been turned invisible.
+            	
+            	for(IConnection conn : connections) {
+            		if(game.getPlayer(conn.getId()).isAdmin()) {
+            			String chatToSend = "";
+            			chatToSend += p.getName();
+            			chatToSend += " has been granted invisibility status.";
+            			sendServerChat(conn.getId(), chatToSend);
+            		}
+            		else if(game.getPlayer(conn.getId()).equals(p)) {
+            			String chatToSend = "You have been granted invisibility status.";
+            			sendServerChat(conn.getId(), chatToSend);
+            		}
+            	}
+            	send(createInvisibilityGrantPacket(pid2));
         }
     }
 

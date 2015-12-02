@@ -601,7 +601,7 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
     }
     
     public void customizePlayer() {
-        PlayerSettingsDialog psd = new PlayerSettingsDialog(this, client);
+        PlayerSettingsDialog psd = new PlayerSettingsDialog(this, client, client.getName());
         psd.setVisible(true);
     }
 

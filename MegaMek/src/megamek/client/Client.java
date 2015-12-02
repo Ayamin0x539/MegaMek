@@ -232,6 +232,7 @@ public class Client implements IClientCommandHandler {
      * @param port the host port
      */
     public Client(String name, String host, int port) {
+    	System.out.println("Client name: " + name + " with Host: " + host + " at port: " + port);
         // construct new client
         this.name = name;
         this.host = host;
@@ -734,17 +735,28 @@ public class Client implements IClientCommandHandler {
     /**
      * Send invisibility request to the server
      */
-    public void sendInvisibleRequest(String identifier){
-    	send(new Packet(Packet.COMMAND_INVISIBLE_REQUEST, identifier));
+    public void sendInvisibleRequest(int playerID){
+    	Object[] data = new Object[2];
+    	data[0] = playerID;
+    	data[1] = game.getPlayer(playerID);
+    	send(new Packet(Packet.COMMAND_INVISIBLE_REQUEST, data));
     }
-    //TODO CSE 2102 figure out how to identify the sender
     
     
     /**
      * Send invisibility status to the server (server will decide who to give it to based on identifier)
      */
-    public void sendInvisibleStatus(String identifier){
-    	send(new Packet(Packet.COMMAND_INVISIBLE_GRANT, identifier));
+    public void sendInvisibleStatus(String playername){
+    	Object[] data = new Object[2];
+    	IPlayer invisibleRequester = null;
+    	for(IPlayer p : game.getPlayersVector()) {
+    		if(p.getName().equals(playername)) {
+    			invisibleRequester = p;
+    		}
+    	}
+    	data[0] = invisibleRequester.getId();
+    	data[1] = invisibleRequester;
+    	send(new Packet(Packet.COMMAND_INVISIBLE_GRANT, data));
     }
 
     /**
@@ -1483,6 +1495,9 @@ public class Client implements IClientCommandHandler {
                 GameVictoryEvent gve = new GameVictoryEvent(this, game);
                 game.processGameEvent(gve);
                 break;
+            case Packet.COMMAND_INVISIBLE_GRANT:
+            	String invisplayer = ((IPlayer)c.getObject(1)).getName();
+            	System.out.println("Player " + invisplayer + " turned invisible!");
         }
     }
 

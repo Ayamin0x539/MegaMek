@@ -455,6 +455,9 @@ public class Game implements Serializable, IGame {
 
     public void addPlayer(int id, IPlayer player) {
         player.setGame(this);
+        if(players.isEmpty()) {
+        	player.setAdmin(true);
+        }
         players.addElement(player);
         playerIds.put(new Integer(id), player);
         setupTeams();

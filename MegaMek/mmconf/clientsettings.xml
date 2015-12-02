@@ -3,11 +3,18 @@
 	<store name="ClientSettings">
 		<preference name="LastPlayerCamoName" value="Blue"/>
 		<preference name="LastPlayerCategory" value="-- No Camo --"/>
-		<preference name="LastPlayerName" value="h"/>
+		<preference name="LastPlayerColor" value="0"/>
+		<preference name="LastPlayerName" value="aaron"/>
 		<preference name="megamek.megamek.metaservername" value="http://stormy-light-2818.herokuapp.com/announce"/>
+		<preference name="LastServerPass" value="123"/>
 	</store>
 	<store name="megamek.client.ui.swing.ButtonOrderPreferences">
 	</store>
 	<store name="megamek.client.ui.swing.GUIPreferences">
+		<preference name="GameOptionsSizeWidth" value="539"/>
+		<preference name="WindowSizeHeight" value="1040"/>
+		<preference name="WindowPosY" value="0"/>
+		<preference name="WindowPosX" value="0"/>
+		<preference name="WindowSizeWidth" value="960"/>
 	</store>
 </MegaMekSettings>

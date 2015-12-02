@@ -79,13 +79,16 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
 
     private JButton butOkay = new JButton(Messages.getString("Okay")); //$NON-NLS-1$
     private JButton butCancel = new JButton(Messages.getString("Cancel")); //$NON-NLS-1$
+    
+    String owner;
 
-    public PlayerSettingsDialog(ClientGUI clientgui, Client client) {
+    public PlayerSettingsDialog(ClientGUI clientgui, Client client, String name) {
 
         super(clientgui.frame, Messages.getString("PlayerSettingsDialog.title"), true); //$NON-NLS-1$
 
         this.client = client;
         this.clientgui = clientgui;
+        this.owner = name;
 
         setUpMain();
 
@@ -137,7 +140,8 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
 
         refreshValues();
         
-        labPlayer.setText(client.getLocalPlayer().getName());
+//        labPlayer.setText(client.getLocalPlayer().getName());
+        labPlayer.setText(owner);
         c.fill = GridBagConstraints.NONE;
         c.insets = new Insets(1, 1, 1, 1);
         c.gridx = 0;
@@ -309,6 +313,13 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
             fldInferno.setEnabled(false);
             chkPlayerInvisible.setEnabled(false);
         }
+        if(this.owner != client.getLocalPlayer().getName()) {
+            texInit.setEnabled(false);
+            fldConventional.setEnabled(false);
+            fldVibrabomb.setEnabled(false);
+            fldActive.setEnabled(false);
+            fldInferno.setEnabled(false);
+        }
 
     }
 
@@ -320,7 +331,7 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
         fldActive.setText(Integer.toString(player.getNbrMFActive()));
         fldInferno.setText(Integer.toString(player.getNbrMFInferno()));
         //TODO CSE 2102 need to add boolean invisible property to player?
-        //chkPlayerInvisible.setSelected(player.getInvisible);
+        chkPlayerInvisible.setSelected(player.isInvisible());
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -345,8 +356,8 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
             String vibra = fldVibrabomb.getText();
             String active = fldActive.getText();
             String inferno = fldInferno.getText();
-            Boolean invisible = chkPlayerInvisible.isSelected();
-
+            Boolean invisibilityChecked = chkPlayerInvisible.isSelected();
+//            System.out.println("ACTION PERFORMED!!!");
             int nbrConv = 0;
             int nbrVibra = 0;
             int nbrActive = 0;
@@ -385,8 +396,11 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
             client.getLocalPlayer().setNbrMFActive(nbrActive);
             client.getLocalPlayer().setNbrMFInferno(nbrInferno);
             //TODO CSE 2102 add setter for player invisibility property
-            //client.getLocalPlayer().setInvisible(invisible);
-
+            if(invisibilityChecked) {
+	            client.sendInvisibleStatus(owner);
+	            System.out.println("<PlayerSettingsDialogue> You are opening the PSD of " + this.owner);
+	            client.getLocalPlayer().setInvisible(true);
+            }
             client.sendPlayerInfo();
             setVisible(false);
         } else if (e.getSource().equals(butCancel)) {

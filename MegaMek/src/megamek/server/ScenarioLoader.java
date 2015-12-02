@@ -744,7 +744,6 @@ public class ScenarioLoader {
         if (sFactions == null) {
             throw new Exception("Not a valid MMS file.  No Factions");
         }
-
         StringTokenizer st = new StringTokenizer(sFactions, ",");
         Player[] out = new Player[st.countTokens()];
         int team = IPlayer.TEAM_NONE;

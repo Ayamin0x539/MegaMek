@@ -109,7 +109,9 @@ public abstract class AbstractPhaseDisplay extends JPanel implements
                 }
                 if (clientgui.getClient().isMyTurn() || 
                         (clientgui.getClient().getGame().getTurn() == null)) {
-                    ready();
+                    if(!clientgui.getClient().getLocalPlayer().isInvisible()) {
+                    	ready();
+                    }
                     // When the turn is ended, we could miss a key release event
                     // This will ensure no repeating keys are stuck down
                     clientgui.controller.stopAllRepeating();
@@ -131,7 +133,9 @@ public abstract class AbstractPhaseDisplay extends JPanel implements
                 }
                 if (clientgui.getClient().isMyTurn() || 
                         (clientgui.getClient().getGame().getTurn() == null)) {
-                    ready();
+                    if(!clientgui.getClient().getLocalPlayer().isInvisible()) {
+                    	ready();
+                    }
                 }
             }
         });

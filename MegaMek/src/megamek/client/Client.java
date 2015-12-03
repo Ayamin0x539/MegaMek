@@ -760,6 +760,18 @@ public class Client implements IClientCommandHandler {
     }
 
     /**
+     * Sends a packet to the server saying we're going to kick a player/
+     * @param idOfPlayerToKick The Id of the player to kick.
+     */
+    public void sendKickPlayer(int idOfPlayerToKick) {
+    	Object[] data = new Object[2];
+    	IPlayer badplayer = game.getPlayer(idOfPlayerToKick);
+    	data[0] = idOfPlayerToKick;
+    	data[1] = badplayer;
+    	send(new Packet(Packet.COMMAND_PLAYER_KICK, data));
+    }
+    
+    /**
      * Send the new map dimensions to the server
      */
     public void sendMapDimensions(MapSettings settings) {
@@ -1252,6 +1264,7 @@ public class Client implements IClientCommandHandler {
                 receivePlayerInfo(c);
                 break;
             case Packet.COMMAND_PLAYER_REMOVE:
+            	System.out.println("REMOVING PLAYER: " + game.getPlayer(c.getIntValue(0)));
                 for (Iterator<Client> botIterator = bots.values().iterator(); botIterator
                         .hasNext(); ) {
                     Client bot = botIterator.next();
@@ -1496,6 +1509,7 @@ public class Client implements IClientCommandHandler {
                 game.processGameEvent(gve);
                 break;
             case Packet.COMMAND_INVISIBLE_GRANT:
+            	game.setPlayerInvisible(c.getIntValue(0));
             	String invisplayer = ((IPlayer)c.getObject(1)).getName();
             	System.out.println("Player " + invisplayer + " turned invisible!");
         }
@@ -1713,4 +1727,5 @@ public class Client implements IClientCommandHandler {
     public IGame getGame() {
         return game;
     }
+
 }

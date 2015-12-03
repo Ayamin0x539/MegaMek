@@ -390,7 +390,7 @@ public class Game implements Serializable, IGame {
         for (Enumeration<IPlayer> i = getPlayers(); i.hasMoreElements(); ) {
             final IPlayer player = i.nextElement();
             // Ignore players not on a team
-            if (player.getTeam() == IPlayer.TEAM_UNASSIGNED) {
+            if (player.getTeam() == IPlayer.TEAM_UNASSIGNED || player.isInvisible()) {
                 continue;
             }
             if (!useTeamInit || (player.getTeam() == IPlayer.TEAM_NONE)) {
@@ -406,6 +406,9 @@ public class Game implements Serializable, IGame {
                 Team new_team = null;
                 for (Enumeration<IPlayer> i = getPlayers(); i.hasMoreElements(); ) {
                     final IPlayer player = i.nextElement();
+                    if(player.isInvisible()) {
+                    	continue;
+                    }
                     if (player.getTeam() == t) {
                         if (new_team == null) {
                             new_team = new Team(t);
@@ -483,6 +486,14 @@ public class Game implements Serializable, IGame {
         playerIds.remove(new Integer(id));
         setupTeams();
         processGameEvent(new GamePlayerChangeEvent(this, playerToRemove));
+    }
+    
+    public void setPlayerInvisible(int id) {
+    	IPlayer player = getPlayer(id);
+    	player.setInvisible(true);
+    	player.setDone(true);
+    	setupTeams();
+    	processGameEvent(new GamePlayerChangeEvent(this, player));
     }
 
     /**

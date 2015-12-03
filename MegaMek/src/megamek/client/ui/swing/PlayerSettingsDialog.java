@@ -303,7 +303,7 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
         c.anchor = GridBagConstraints.NORTHWEST;
         gridbag.setConstraints(chkPlayerInvisible, c);
         panMain.add(chkPlayerInvisible);
-        //TODO CSE 2102 this check box should be disabled if the person usings the Player Settings Dialog is not an admin
+        chkPlayerInvisible.setEnabled(clientgui.getClient().getLocalPlayer().isAdmin());
         
         // Disable changing minefields mid-game
         if (client.getGame().getPhase() != Phase.PHASE_LOUNGE) {
@@ -319,6 +319,9 @@ public class PlayerSettingsDialog extends ClientDialog implements ActionListener
             fldVibrabomb.setEnabled(false);
             fldActive.setEnabled(false);
             fldInferno.setEnabled(false);
+        }
+        else {
+        	chkPlayerInvisible.setEnabled(false);
         }
 
     }

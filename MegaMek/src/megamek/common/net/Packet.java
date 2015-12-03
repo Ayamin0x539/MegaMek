@@ -127,6 +127,7 @@ public class Packet {
     
 	public static final int COMMAND_INVISIBLE_REQUEST = 900;
 	public static final int COMMAND_INVISIBLE_GRANT = 905;
+	public static final int COMMAND_PLAYER_KICK = 910;
 
     private int command;
 

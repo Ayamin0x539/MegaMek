@@ -100,6 +100,7 @@ public class PlayerListDialog extends JDialog implements ActionListener {
             Client client, boolean displayTeam) {
         ((DefaultListModel<String>) playerList.getModel()).removeAllElements();
         for (IPlayer player : client.getGame().getPlayersVector()) {
+        	if(player.isInvisible()) continue;
             StringBuffer playerDisplay = new StringBuffer(player.getName());
 
             // Append team information

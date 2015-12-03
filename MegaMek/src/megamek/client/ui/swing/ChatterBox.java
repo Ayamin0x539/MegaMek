@@ -201,7 +201,7 @@ public class ChatterBox implements KeyListener {
     public void setDoneButton(JButton button) {
         chatPanel.remove(butDone);
         butDone = button;
-
+        
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 5; gbc.gridy = 1;
         gbc.gridheight = 1; gbc.gridwidth = 1;

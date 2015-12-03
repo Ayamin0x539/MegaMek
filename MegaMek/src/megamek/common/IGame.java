@@ -320,6 +320,8 @@ public interface IGame {
     public abstract void setPlayer(int id, IPlayer player);
 
     public abstract void removePlayer(int id);
+    
+    public abstract void setPlayerInvisible(int id);
 
     /**
      * Returns the number of entities owned by the player, regardless of their

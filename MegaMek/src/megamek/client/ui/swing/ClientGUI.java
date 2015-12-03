@@ -972,7 +972,9 @@ public class ClientGUI extends JPanel implements WindowListener, BoardViewListen
                     rD.resetTabs();
                 }
                 ChatLounge cl = (ChatLounge) phaseComponents.get(String.valueOf(IGame.Phase.PHASE_LOUNGE));
-                cb.setDoneButton(cl.butDone);
+                if(!client.getLocalPlayer().isInvisible()) {
+                	cb.setDoneButton(cl.butDone);
+                }
                 cl.add(cb.getComponent(), BorderLayout.SOUTH);
                 getBoardView().getTilesetManager().reset();
                 mechW.setVisible(false);

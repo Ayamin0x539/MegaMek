@@ -1630,6 +1630,7 @@ public class Server implements Runnable {
         }
         for (Enumeration<IPlayer> i = game.getPlayers(); i.hasMoreElements(); ) {
             final IPlayer player = i.nextElement();
+            if(player.isInvisible()) continue;
             player.setDone(false);
         }
         transmitAllPlayerDones();
@@ -1696,6 +1697,7 @@ public class Server implements Runnable {
         Enumeration<IPlayer> players = game.getPlayers();
         while (players.hasMoreElements()) {
             IPlayer player = players.nextElement();
+            if(player.isInvisible()) continue;
             r = new Report();
             r.type = Report.PUBLIC;
             r.messageId = 7016;
@@ -2354,6 +2356,7 @@ public class Server implements Runnable {
                 Enumeration<IPlayer> players2 = game.getPlayers();
                 while (players2.hasMoreElements()) {
                     IPlayer player = players2.nextElement();
+                    if(player.isInvisible()) continue;
                     Report r = new Report();
                     r.type = Report.PUBLIC;
                     if (doBlind()) {
@@ -28828,7 +28831,7 @@ public class Server implements Runnable {
                     if (connId == IPlayer.PLAYER_NONE) {
                         sendServerChat(chat);
                     } else {
-                        sendServerChat(connId, chat); // TODO CSE 2102 model the invisible request to this COMMAND_CHAT packet; it's a server-wide broadcast (red flashing)
+                        sendServerChat(connId, chat); 
                     }
                 } else {
                     sendChat(player.getName(), chat);
@@ -29048,13 +29051,14 @@ public class Server implements Runnable {
             			break;
             		}
             	}
+
             	break;
             case Packet.COMMAND_INVISIBLE_GRANT:
             	// data[0]: playerId of person granted
             	// data[1]: Player object of person granted
             	int pid2 = (int)packet.getObject(0);
             	IPlayer p = (IPlayer)packet.getObject(1);
-            	p.setInvisible(true);
+            	game.setPlayerInvisible(pid2);
             	
             	// Send chat to everyone saying player has left.
             	sendServerChat(p.getName() + " disconnected.");
@@ -29073,6 +29077,20 @@ public class Server implements Runnable {
             		}
             	}
             	send(createInvisibilityGrantPacket(pid2));
+            	break;
+            case Packet.COMMAND_PLAYER_KICK:
+            	IPlayer badplayer = (IPlayer)packet.getObject(1);
+            	for(IConnection conn : connections) {
+            		IPlayer p1 = game.getPlayer(conn.getId());
+            		if(p1.equals(badplayer)) {
+            			String chatToSend = "You have been kicked! Behave!";
+            			sendServerChat(conn.getId(), chatToSend);
+            			break;
+            		}
+            	}
+            	disconnected(badplayer);
+            	break;
+            	
         }
     }
 

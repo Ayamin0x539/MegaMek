@@ -136,6 +136,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
     private static final long serialVersionUID = 1454736776730903786L;
 
     private String clickedName;
+    private int idOfPlayerToKick;
     private JButton butOptions;
     private JLabel lblMapSummary;
     private JLabel lblGameYear;
@@ -168,6 +169,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
     private JButton butAddBot;
     private JButton butRemoveBot;
     private JButton butRequestInvisible; // request invisibility status (greyed out for host)
+    private JButton butKick;
     private JButton butChangeStart;
     private JTable tablePlayers;
     private JScrollPane scrPlayers;
@@ -490,7 +492,7 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
         scrPlayers = new JScrollPane(tablePlayers);
         scrPlayers
                 .setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
+        
         panPlayerInfo = new JPanel();
         panPlayerInfo.setBorder(BorderFactory
                 .createTitledBorder("Player Setup"));
@@ -507,12 +509,19 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
         
         butRequestInvisible = new JButton(
         		Messages.getString("ChatLounge.butRequestInvisible")); // messages.properties for English version
-        // butRequestInvisible.setEnabled(true); // in the end, this needs to be set enabled only for non-host players
-        // butRequestInvisible.setEnabled(!clientgui.getClient().getLocalPlayer()).isHost()); // TODO CSE 2102 isHost needs to be implemented. assuming getLocalPlayer returns "us".
+        if(clientgui.getClient().getLocalPlayer().isAdmin()) {
+        	butRequestInvisible.setEnabled(false);
+        }
         butRequestInvisible.setActionCommand("request_invisible");
         butRequestInvisible.addActionListener(this);
         
-
+        butKick = new JButton(
+        		Messages.getString("ChatLounge.butKick")); // messages.properties for English version
+//        if(!clientgui.getClient().getLocalPlayer().isInvisible() && !clientgui.getClient().getLocalPlayer().isAdmin()) {
+        butKick.setActionCommand("kick");
+        butKick.addActionListener(this);
+        
+        
         choTeam = new JComboBox<String>();
         setupTeams();
         choTeam.addItemListener(this);
@@ -588,6 +597,15 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
         gridbag.setConstraints(butRequestInvisible, c);
         panPlayerInfo.add(butRequestInvisible);
 
+        c.gridx = 0;
+        c.gridy = 5;
+        c.gridwidth = 1;
+        c.gridheight = 1;
+        c.weightx = 1.0;
+        c.weighty = 0.0;
+        gridbag.setConstraints(butKick, c);
+        panPlayerInfo.add(butKick);
+        
         c.gridx = 1;
         c.gridy = 0;
         c.gridwidth = 1;
@@ -1836,10 +1854,12 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
         for (Enumeration<IPlayer> i = clientgui.getClient().getPlayers(); i
                 .hasMoreElements();) {
             final IPlayer player = i.nextElement();
-            if (player == null) {
+            if (player == null || player.isInvisible()) {
                 continue;
             }
-            playerModel.addPlayer(player);
+//            if(!player.isInvisible()) {
+            	playerModel.addPlayer(player);
+//            }
         }
     }
 
@@ -2202,7 +2222,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
     		name = "ERROR GETTING NAME FOR PSD";
     	}
     	Client myClient = clientgui.getClient();
-    	System.out.println(myClient == c ? "myClient == c" : "myClient != c");
     	if(myClient.getLocalPlayer().isAdmin() || myClient == c) {
 	        if (null != c) {
 	        	System.out.println("<ChatLounge.customizePlayer()> Opening PSD for " + name);
@@ -2544,7 +2563,17 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
             clientgui.getBots().remove(c.getName());           //TODO CSE 2102 - add another else if for ev.getSource().equals(requestInvisible)/.equals(grantInvisible)  
         } else if (ev.getSource() == butRequestInvisible) { // we can do grantInvisible on the host side via Player Settings option. (double click on player name in ChatLounge).
         	clientgui.getClient().sendInvisibleRequest(clientgui.getClient().getLocalPlayer().getId());
-        } 
+        } else if (ev.getSource() == butKick) {
+        	IPlayer p = clientgui.getClient().getLocalPlayer();
+        	IPlayer badplayer = clientgui.getClient().getGame().getPlayer(idOfPlayerToKick);
+        	
+        	if(0 != idOfPlayerToKick && (p.isInvisible() || p.isAdmin()) && !badplayer.isAdmin()) {
+        		clientgui.getClient().sendKickPlayer(idOfPlayerToKick);
+        	}
+        	else {
+        		clientgui.doAlertDialog("Kick Failed", "You lack the permission to kick this player.");
+        	}
+        }
         else if (ev.getSource() == butConditions) {
             clientgui.getPlanetaryConditionsDialog().update(
                     clientgui.getClient().getGame().getPlanetaryConditions());
@@ -2762,8 +2791,6 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
     		return clientgui.getClient();
     	}
         if (tablePlayers.getSelectedRow() == -1) {
-        	System.out.println("You double clicked?");
-        	System.out.println(tablePlayers == null ? "Tableplayers is null" : "Tableplayers isn't null");
             //String name = (String) tablePlayers.getValueAt(
                     //tablePlayers.getSelectedRow(), 0);
             return clientgui.getClient();
@@ -2771,14 +2798,10 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
         String name = (String) tablePlayers.getValueAt(
                 tablePlayers.getSelectedRow(), 0);
         clickedName = name;
-        System.out.println("<ChatLounge 1> The name of the player is " +  name); // cse 2102
         BotClient c = (BotClient) clientgui.getBots().get(name);
         if ((c == null) && clientgui.getClient().getName().equals(name)) {
-        	 System.out.println("<ChatLounge 2> The name of the player is " +  name); // cse 2102
             return clientgui.getClient();
         }
-        System.out.println("<ChatLounge 3> The name of the player is " +  name); // cse 2102
-        
         return c;
     }
 
@@ -2969,8 +2992,15 @@ public class ChatLounge extends AbstractPhaseDisplay implements ActionListener,
     public class PlayerTableMouseAdapter extends MouseInputAdapter implements
             ActionListener {
 
-        @Override
+		@Override
         public void mouseClicked(MouseEvent e) {
+        	if (e.getClickCount() == 1) {
+        		System.out.println("You clicked once.");
+        		int row = tablePlayers.rowAtPoint(e.getPoint());
+                IPlayer player = playerModel.getPlayerAt(row);
+                System.out.println("You clicked on " + player.getName());
+                idOfPlayerToKick = player.getId();
+        	}
             if (e.getClickCount() == 2) {
                 int row = tablePlayers.rowAtPoint(e.getPoint());
                 IPlayer player = playerModel.getPlayerAt(row);
